@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ChakraProvider, Container, VStack, useDisclosure, Text, Box, Tabs, TabList, TabPanels, Tab, TabPanel, Heading, useToast, Button } from '@chakra-ui/react';
+import { ChakraProvider, Container, VStack, useDisclosure, Text, Box, Tabs, TabList, TabPanels, Tab, TabPanel, Heading, useToast, Button, IconButton, Tooltip, Flex } from '@chakra-ui/react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { SearchModal } from './components/SearchModal';
 import { PromptForm } from './components/PromptForm';
 import { PromptList } from './components/PromptList';
+import { InfoModal } from './components/InfoModal';
 import { supabase } from './lib/supabase';
-import { Search } from 'lucide-react';
+import { Search, HelpCircle } from 'lucide-react';
 
 // 定义提示词类型
 interface Prompt {
@@ -21,6 +22,7 @@ interface Prompt {
 
 function App() {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen: isInfoOpen, onOpen: onInfoOpen, onClose: onInfoClose } = useDisclosure();
   const [searchResults, setSearchResults] = useState<Prompt[]>([]);
   const [connectionError, setConnectionError] = useState(false);
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
@@ -135,9 +137,23 @@ function App() {
         )}
         
         <VStack spacing={8} align="stretch">
-          <Heading as="h1" size="xl" color="green.500" textAlign="center">
-            AI提示词管理工具
-          </Heading>
+          <Flex justifyContent="center" alignItems="center" position="relative">
+            <Heading as="h1" size="xl" color="green.500" textAlign="center">
+              AI提示词管理工具
+            </Heading>
+            <Tooltip label="关于这个工具" hasArrow placement="right">
+              <IconButton
+                icon={<HelpCircle size={18} />}
+                aria-label="关于这个工具"
+                variant="ghost"
+                colorScheme="green"
+                size="sm"
+                position="absolute"
+                right="0"
+                onClick={onInfoOpen}
+              />
+            </Tooltip>
+          </Flex>
           
           <Tabs 
             colorScheme="green" 
@@ -184,6 +200,11 @@ function App() {
             searchResults={searchResults}
             onSearch={handleSearch}
             onCopyPrompt={handleCopyPrompt}
+          />
+          
+          <InfoModal
+            isOpen={isInfoOpen}
+            onClose={onInfoClose}
           />
         </VStack>
       </Container>
