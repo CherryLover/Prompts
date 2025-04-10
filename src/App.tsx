@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ChakraProvider, Container, VStack, useDisclosure, Text, Box, Tabs, TabList, TabPanels, Tab, TabPanel, Heading, useToast, Button, IconButton, Tooltip, Flex } from '@chakra-ui/react';
+import { ChakraProvider, Container, VStack, useDisclosure, Text, Box, Tabs, TabList, TabPanels, Tab, TabPanel, Heading, useToast, Button, IconButton, Tooltip, Flex, Alert, AlertIcon, AlertTitle, AlertDescription, CloseButton } from '@chakra-ui/react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { SearchModal } from './components/SearchModal';
 import { PromptForm } from './components/PromptForm';
@@ -23,6 +23,9 @@ interface Prompt {
 function App() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isInfoOpen, onOpen: onInfoOpen, onClose: onInfoClose } = useDisclosure();
+  const { isOpen: isWelcomeOpen, onClose: onWelcomeClose } = useDisclosure({ 
+    defaultIsOpen: import.meta.env.VITE_SAMPLE_ENABLE === 'true' 
+  });
   const [searchResults, setSearchResults] = useState<Prompt[]>([]);
   const [connectionError, setConnectionError] = useState(false);
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
@@ -130,6 +133,19 @@ function App() {
   return (
     <ChakraProvider>
       <Container maxW="container.xl" py={8}>
+        {isWelcomeOpen && (
+          <Alert status="warning" mb={4} borderRadius="md">
+            <AlertIcon />
+            <Box flex="1">
+              <AlertTitle>演示站点提示</AlertTitle>
+              <AlertDescription>
+                这是一个演示站点，请不要全部删除提示词，给他人造成困扰。
+              </AlertDescription>
+            </Box>
+            <CloseButton position="absolute" right="8px" top="8px" onClick={onWelcomeClose} />
+          </Alert>
+        )}
+        
         {connectionError && (
           <Box p={4} mb={4} bg="red.100" color="red.800" borderRadius="md">
             <Text>无法连接到Supabase。请检查你的环境变量配置。</Text>
