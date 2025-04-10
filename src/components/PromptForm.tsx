@@ -16,6 +16,7 @@ import {
   AlertIcon,
   AlertTitle,
   AlertDescription,
+  Text,
 } from '@chakra-ui/react';
 import { supabase } from '../lib/supabase';
 import { Prompt } from '../types';
@@ -45,11 +46,33 @@ export const PromptForm: React.FC<PromptFormProps> = ({ onSuccess }) => {
     if (e.key === ',' && tagInput.trim()) {
       setTags([...tags, tagInput.trim()]);
       setTagInput('');
+    } else if (e.key === 'Enter' && tagInput.trim()) {
+      e.preventDefault(); // 防止表单提交
+      setTags([...tags, tagInput.trim()]);
+      setTagInput('');
     }
   };
 
   const handleModelInput = (e: React.KeyboardEvent) => {
     if (e.key === ',' && modelInput.trim()) {
+      setModels([...models, modelInput.trim()]);
+      setModelInput('');
+    } else if (e.key === 'Enter' && modelInput.trim()) {
+      e.preventDefault(); // 防止表单提交
+      setModels([...models, modelInput.trim()]);
+      setModelInput('');
+    }
+  };
+
+  const addTag = () => {
+    if (tagInput.trim()) {
+      setTags([...tags, tagInput.trim()]);
+      setTagInput('');
+    }
+  };
+
+  const addModel = () => {
+    if (modelInput.trim()) {
       setModels([...models, modelInput.trim()]);
       setModelInput('');
     }
@@ -67,12 +90,18 @@ export const PromptForm: React.FC<PromptFormProps> = ({ onSuccess }) => {
     }
 
     try {
+      // 准备数据，确保数组不为空
+      const tagsValue = tags.length > 0 ? tags : null;
+      const modelsValue = models.length > 0 ? models : null;
+      
+      console.log('提交数据:', { title, content, tags: tagsValue, models: modelsValue });
+      
       const { error } = await supabase.from('prompts').insert([
         {
           title,
           content,
-          tags: tags.length > 0 ? tags : null,
-          models: models.length > 0 ? models : null,
+          tags: tagsValue,
+          models: modelsValue,
           favorite: false,
         },
       ]);
@@ -152,12 +181,21 @@ export const PromptForm: React.FC<PromptFormProps> = ({ onSuccess }) => {
 
         <FormControl>
           <FormLabel>标签</FormLabel>
-          <Input
-            value={tagInput}
-            onChange={(e) => setTagInput(e.target.value)}
-            onKeyDown={handleTagInput}
-            placeholder="输入标签（逗号分隔）"
-          />
+          <HStack>
+            <Input
+              value={tagInput}
+              onChange={(e) => setTagInput(e.target.value)}
+              onKeyDown={handleTagInput}
+              placeholder="输入标签后按回车或逗号添加"
+              flex="1"
+            />
+            <Button size="md" onClick={addTag} colorScheme="green">
+              添加
+            </Button>
+          </HStack>
+          <Text fontSize="xs" color="gray.500" mt={1}>
+            提示：输入标签后按回车、逗号或点击添加按钮
+          </Text>
           <HStack mt={2} wrap="wrap">
             {tags.map((tag) => (
               <Tag
@@ -178,12 +216,21 @@ export const PromptForm: React.FC<PromptFormProps> = ({ onSuccess }) => {
 
         <FormControl>
           <FormLabel>推荐模型</FormLabel>
-          <Input
-            value={modelInput}
-            onChange={(e) => setModelInput(e.target.value)}
-            onKeyDown={handleModelInput}
-            placeholder="输入模型（逗号分隔）"
-          />
+          <HStack>
+            <Input
+              value={modelInput}
+              onChange={(e) => setModelInput(e.target.value)}
+              onKeyDown={handleModelInput}
+              placeholder="输入模型后按回车或逗号添加"
+              flex="1"
+            />
+            <Button size="md" onClick={addModel} colorScheme="blue">
+              添加
+            </Button>
+          </HStack>
+          <Text fontSize="xs" color="gray.500" mt={1}>
+            提示：输入模型后按回车、逗号或点击添加按钮
+          </Text>
           <HStack mt={2} wrap="wrap">
             {models.map((model) => (
               <Tag

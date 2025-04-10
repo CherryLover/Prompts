@@ -187,11 +187,33 @@ export const PromptList = forwardRef<{ refresh: () => Promise<void> }, PromptLis
     if (e.key === ',' && editTagInput.trim()) {
       setEditTags([...editTags, editTagInput.trim()]);
       setEditTagInput('');
+    } else if (e.key === 'Enter' && editTagInput.trim()) {
+      e.preventDefault(); // 防止表单提交
+      setEditTags([...editTags, editTagInput.trim()]);
+      setEditTagInput('');
     }
   };
 
   const handleEditModelInput = (e: React.KeyboardEvent) => {
     if (e.key === ',' && editModelInput.trim()) {
+      setEditModels([...editModels, editModelInput.trim()]);
+      setEditModelInput('');
+    } else if (e.key === 'Enter' && editModelInput.trim()) {
+      e.preventDefault(); // 防止表单提交
+      setEditModels([...editModels, editModelInput.trim()]);
+      setEditModelInput('');
+    }
+  };
+
+  const addEditTag = () => {
+    if (editTagInput.trim()) {
+      setEditTags([...editTags, editTagInput.trim()]);
+      setEditTagInput('');
+    }
+  };
+
+  const addEditModel = () => {
+    if (editModelInput.trim()) {
       setEditModels([...editModels, editModelInput.trim()]);
       setEditModelInput('');
     }
@@ -214,13 +236,24 @@ export const PromptList = forwardRef<{ refresh: () => Promise<void> }, PromptLis
     
     setIsSubmitting(true);
     try {
+      // 准备数据，确保数组不为空
+      const tagsValue = editTags.length > 0 ? editTags : null;
+      const modelsValue = editModels.length > 0 ? editModels : null;
+      
+      console.log('更新数据:', { 
+        title: editTitle, 
+        content: editContent, 
+        tags: tagsValue, 
+        models: modelsValue 
+      });
+      
       const { error } = await supabase
         .from('prompts')
         .update({
           title: editTitle,
           content: editContent,
-          tags: editTags,
-          models: editModels,
+          tags: tagsValue,
+          models: modelsValue,
           updated_at: new Date().toISOString(),
         })
         .eq('id', currentPrompt.id);
@@ -356,23 +389,34 @@ export const PromptList = forwardRef<{ refresh: () => Promise<void> }, PromptLis
                   >
                     {prompt.content}
                   </Text>
-                  <HStack spacing={2} flexWrap="wrap" maxW="100%">
-                    {prompt.tags &&
-                      prompt.tags.map((tag: string) => (
-                        <Tag key={tag} size="sm" colorScheme="green" my={1}>
-                          {tag}
-                        </Tag>
-                      ))}
-                  </HStack>
-                  {prompt.models && prompt.models.length > 0 && (
-                    <HStack spacing={2} mt={2} flexWrap="wrap" maxW="100%">
-                      {prompt.models.map((model: string) => (
-                        <Tag key={model} size="sm" colorScheme="blue" my={1}>
-                          {model}
-                        </Tag>
-                      ))}
-                    </HStack>
-                  )}
+                  
+                  <Flex alignItems="center" flexWrap="wrap">
+                    {prompt.models && prompt.models.length > 0 && (
+                      <>
+                        <Text fontSize="xs" fontWeight="bold" color="gray.500" mr={1}>
+                          适用模型:
+                        </Text>
+                        {prompt.models.map((model: string) => (
+                          <Tag key={model} size="sm" colorScheme="blue" mr={1} mb={1}>
+                            {model}
+                          </Tag>
+                        ))}
+                      </>
+                    )}
+                    
+                    {prompt.tags && prompt.tags.length > 0 && (
+                      <>
+                        <Text fontSize="xs" fontWeight="bold" color="gray.500" mr={1} ml={prompt.models && prompt.models.length > 0 ? 2 : 0}>
+                          标签:
+                        </Text>
+                        {prompt.tags.map((tag: string) => (
+                          <Tag key={tag} size="sm" colorScheme="green" mr={1} mb={1}>
+                            {tag}
+                          </Tag>
+                        ))}
+                      </>
+                    )}
+                  </Flex>
                 </Box>
                 <HStack ml={4} flexShrink={0}>
                   <IconButton
@@ -449,12 +493,21 @@ export const PromptList = forwardRef<{ refresh: () => Promise<void> }, PromptLis
 
               <FormControl>
                 <FormLabel>标签</FormLabel>
-                <Input
-                  value={editTagInput}
-                  onChange={(e) => setEditTagInput(e.target.value)}
-                  onKeyDown={handleEditTagInput}
-                  placeholder="输入标签（逗号分隔）"
-                />
+                <HStack>
+                  <Input
+                    value={editTagInput}
+                    onChange={(e) => setEditTagInput(e.target.value)}
+                    onKeyDown={handleEditTagInput}
+                    placeholder="输入标签后按回车或逗号添加"
+                    flex="1"
+                  />
+                  <Button size="md" onClick={addEditTag} colorScheme="green">
+                    添加
+                  </Button>
+                </HStack>
+                <Text fontSize="xs" color="gray.500" mt={1}>
+                  提示：输入标签后按回车、逗号或点击添加按钮
+                </Text>
                 <HStack mt={2} wrap="wrap">
                   {editTags.map((tag) => (
                     <Tag
@@ -479,12 +532,21 @@ export const PromptList = forwardRef<{ refresh: () => Promise<void> }, PromptLis
 
               <FormControl>
                 <FormLabel>推荐模型</FormLabel>
-                <Input
-                  value={editModelInput}
-                  onChange={(e) => setEditModelInput(e.target.value)}
-                  onKeyDown={handleEditModelInput}
-                  placeholder="输入模型（逗号分隔）"
-                />
+                <HStack>
+                  <Input
+                    value={editModelInput}
+                    onChange={(e) => setEditModelInput(e.target.value)}
+                    onKeyDown={handleEditModelInput}
+                    placeholder="输入模型后按回车或逗号添加"
+                    flex="1"
+                  />
+                  <Button size="md" onClick={addEditModel} colorScheme="blue">
+                    添加
+                  </Button>
+                </HStack>
+                <Text fontSize="xs" color="gray.500" mt={1}>
+                  提示：输入模型后按回车、逗号或点击添加按钮
+                </Text>
                 <HStack mt={2} wrap="wrap">
                   {editModels.map((model) => (
                     <Tag
