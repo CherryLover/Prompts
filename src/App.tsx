@@ -191,7 +191,7 @@ function App() {
           </Tabs>
 
           <Box textAlign="center" fontSize="sm" color="gray.500">
-            <Text>快捷键: 搜索 Command+K 或点击搜索按钮 | ←/→ 切换标签页</Text>
+            <Text>Tips: 搜索 Command+K 或点击搜索按钮 | ←/→ 切换标签页 | ↑/↓ 浏览列表 | Enter 复制提示词</Text>
           </Box>
 
           <SearchModal
