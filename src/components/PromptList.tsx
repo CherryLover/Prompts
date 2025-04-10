@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, forwardRef, useImperativeHandle } from 'react';
+import React, { useState, useEffect, useCallback, forwardRef, useImperativeHandle, useRef } from 'react';
 import {
   Box,
   VStack,
@@ -60,6 +60,7 @@ export const PromptList = forwardRef<{ refresh: () => Promise<void> }, PromptLis
     onClose: onDeleteClose 
   } = useDisclosure();
   const toast = useToast();
+  const selectedItemRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchPrompts();
@@ -272,6 +273,16 @@ export const PromptList = forwardRef<{ refresh: () => Promise<void> }, PromptLis
     }
   }, [prompts, selectedIndex, isEditOpen, isDeleteOpen, searchModalOpen]);
 
+  // 当选中项改变时，确保它在视图中可见
+  useEffect(() => {
+    if (selectedIndex >= 0 && selectedItemRef.current) {
+      selectedItemRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest'
+      });
+    }
+  }, [selectedIndex]);
+
   // 添加键盘事件监听
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
@@ -305,10 +316,11 @@ export const PromptList = forwardRef<{ refresh: () => Promise<void> }, PromptLis
           暂无提示词，请添加一条
         </Text>
       ) : (
-        <VStack spacing={4} align="stretch">
+        <VStack spacing={4} align="stretch" maxH="70vh" overflowY="auto" p={2}>
           {prompts.map((prompt, index) => (
             <Box
               key={prompt.id}
+              ref={index === selectedIndex ? selectedItemRef : null}
               p={4}
               borderWidth="1px"
               borderRadius="md"
