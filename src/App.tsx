@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ChakraProvider, Container, VStack, useDisclosure, Text, Box, Tabs, TabList, TabPanels, Tab, TabPanel, Heading, useToast } from '@chakra-ui/react';
+import { ChakraProvider, Container, VStack, useDisclosure, Text, Box, Tabs, TabList, TabPanels, Tab, TabPanel, Heading, useToast, Button } from '@chakra-ui/react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { SearchModal } from './components/SearchModal';
 import { PromptForm } from './components/PromptForm';
 import { PromptList } from './components/PromptList';
 import { supabase } from './lib/supabase';
+import { Search } from 'lucide-react';
 
 // 定义提示词类型
 interface Prompt {
@@ -147,6 +148,18 @@ function App() {
             <TabList>
               <Tab>提示词列表 (←)</Tab>
               <Tab>创建提示词 (→)</Tab>
+              <Box flex="1" />
+              <Button 
+                leftIcon={<Search size={16} />} 
+                colorScheme="green" 
+                variant="outline" 
+                onClick={onOpen}
+                size="sm"
+                mt="1"
+                mr="2"
+              >
+                搜索
+              </Button>
             </TabList>
             <TabPanels>
               <TabPanel>
@@ -162,7 +175,7 @@ function App() {
           </Tabs>
 
           <Box textAlign="center" fontSize="sm" color="gray.500">
-            <Text>快捷键: 搜索 Command+K | ←/→ 切换标签页</Text>
+            <Text>快捷键: 搜索 Command+K 或点击搜索按钮 | ←/→ 切换标签页</Text>
           </Box>
 
           <SearchModal
