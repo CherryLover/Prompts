@@ -10,7 +10,11 @@ import {
   VStack,
   Box,
   useColorModeValue,
+  Link,
+  HStack,
+  Icon,
 } from '@chakra-ui/react';
+import { FaGithub } from 'react-icons/fa';
 
 interface InfoModalProps {
   isOpen: boolean;
@@ -54,6 +58,16 @@ export const InfoModal: React.FC<InfoModalProps> = ({
                 例如："你可以先跟我交流一下需求，明确了要做的内容之后再写代码。"
                 这类经常使用的提示，只需记住快捷短语即可快速调用。
               </Text>
+            </Box>
+
+            <Box>
+              <Text fontWeight="bold" mb={2}>开源地址</Text>
+              <HStack>
+                <Icon as={FaGithub} boxSize={5} />
+                <Link href="https://github.com/CherryLover/Prompts" isExternal color="teal.500">
+                  GitHub 仓库：CherryLover/Prompts
+                </Link>
+              </HStack>
             </Box>
           </VStack>
         </ModalBody>
